@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>首爾 Touched 行程・Naver地圖速查</title>
+<style>
+  :root{
+    --navy:#1a2b4a; --blue:#2f5dd1; --sky:#eef3fb; --pink:#ff5a7a; --gold:#d98a00;
+    --line:#e3e8f0; --ink:#26303f; --muted:#7a8699; --card:#ffffff; --bg:#f5f7fb;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:"Helvetica Neue","PingFang TC","Microsoft JhengHei","Malgun Gothic",sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;}
+  header{background:linear-gradient(135deg,#1a2b4a,#2f5dd1);color:#fff;padding:30px 20px 24px;text-align:center;}
+  header h1{margin:0 0 6px;font-size:24px;letter-spacing:1px;}
+  header p{margin:0;opacity:.85;font-size:14px;}
+  .wrap{max-width:860px;margin:0 auto;padding:0 16px 60px;}
+  .tabs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;position:sticky;top:0;
+    background:var(--bg);padding:14px 0;z-index:10;border-bottom:1px solid var(--line);}
+  .tab{border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 14px;border-radius:999px;
+    cursor:pointer;font-size:14px;font-weight:600;transition:.15s;}
+  .tab:hover{border-color:var(--blue);}
+  .tab.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .panel{display:none;animation:fade .25s ease;}
+  .panel.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+  .dayhead{margin:24px 0 4px;font-size:15px;color:var(--muted);font-weight:700;letter-spacing:.5px;}
+  .dayhead b{color:var(--navy);font-size:18px;}
+
+  /* timeline */
+  .timeline{background:#fff;border:1px solid var(--line);border-left:5px solid var(--blue);
+    border-radius:12px;padding:14px 16px;margin:14px 0 18px;box-shadow:0 1px 3px rgba(26,43,74,.05);}
+  .timeline .th{font-size:13px;font-weight:800;color:var(--navy);margin:0 0 10px;letter-spacing:.5px;}
+  .tlrow{display:flex;align-items:flex-start;gap:12px;padding:6px 0;border-top:1px dashed var(--line);}
+  .tlrow:first-of-type{border-top:none;}
+  .tlrow .t{flex:0 0 92px;font-weight:800;color:var(--blue);font-variant-numeric:tabular-nums;font-size:15px;}
+  .tlrow .l{flex:1;font-size:14px;color:var(--ink);}
+  .tlrow.fix{background:#fff6ec;margin:0 -8px;padding:6px 8px;border-radius:8px;border-top:none;}
+  .tlrow.fix .t{color:var(--gold);}
+  .lock{display:inline-block;background:var(--gold);color:#fff;font-size:10px;font-weight:800;
+    border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:middle;}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:14px 0;
+    box-shadow:0 1px 3px rgba(26,43,74,.05);}
+  .card .cn{font-size:18px;font-weight:700;color:var(--navy);margin:0 0 2px;}
+  .card .tag{display:inline-block;font-size:11px;font-weight:700;color:#fff;background:var(--pink);
+    border-radius:6px;padding:2px 8px;margin-left:8px;vertical-align:middle;}
+  .card .tag.spot{background:var(--blue);}
+  .card .tag.stay{background:#13b07c;}
+  .timechip{display:inline-block;font-size:12px;font-weight:800;color:var(--blue);background:var(--sky);
+    border-radius:6px;padding:2px 9px;margin-left:8px;vertical-align:middle;font-variant-numeric:tabular-nums;}
+  .timechip.fix{color:#fff;background:var(--gold);}
+  .row{display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-size:14px;}
+  .row .k{flex:0 0 64px;color:var(--muted);font-weight:600;}
+  .row .v{flex:1;}
+  .kr{font-weight:700;color:#111;}
+  .addr{font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;color:#1d3a8a;
+    background:var(--sky);border-radius:8px;padding:6px 10px;display:inline-block;user-select:all;}
+  .desc{color:#55606f;font-size:13.5px;margin-top:10px;border-top:1px dashed var(--line);padding-top:10px;}
+  .note{color:#b5482f;font-size:12.5px;margin-top:6px;}
+  .flight{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;}
+  .flight .seg{flex:1;min-width:130px;}
+  .flight .time{font-size:24px;font-weight:800;color:var(--navy);}
+  .flight .code{font-size:13px;color:var(--muted);}
+  .flight .arrow{color:var(--blue);font-weight:800;font-size:18px;}
+  .pill{display:inline-block;background:var(--navy);color:#fff;border-radius:6px;padding:3px 10px;font-size:13px;font-weight:700;}
+  .tip{background:#fff8e6;border:1px solid #f3e1a8;border-radius:10px;padding:12px 14px;font-size:13px;color:#7a5c12;margin:14px 0;}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:20px;}
+  .legend{text-align:center;font-size:12px;color:var(--muted);margin:-4px 0 6px;}
+  .legend .lock{margin-left:0;}
+</style>
+</head>
+<body>
+<header>
+  <h1>🇰🇷 首爾 Touched 行程・地圖速查</h1>
+  <p>7/9 – 7/13 ｜ 韓文店名 × Naver 地址（點地址即可複製）</p>
+</header>
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab active" data-t="d1">Day1 弘大</button>
+    <button class="tab" data-t="d2">Day2 麻浦</button>
+    <button class="tab" data-t="d3">Day3 北村·明洞</button>
+    <button class="tab" data-t="d4">Day4 聖水·夜景</button>
+    <button class="tab" data-t="d5">Day5 返程·機票</button>
+  </div>
+  <p class="legend"><span class="lock">🎫</span> = 訂票固定時間，與機票一樣不可變動</p>
+
+  <!-- DAY1 -->
+  <section class="panel active" id="d1">
+    <div class="dayhead">7/9（四）抵達仁川 → <b>弘大・延南洞</b></div>
+    <div class="timeline">
+      <p class="th">⏱ 當日固定時間</p>
+      <div class="tlrow"><span class="t">11:00</span><span class="l">抵達仁川機場（BR170）</span></div>
+      <div class="tlrow"><span class="t">12:00–13:00</span><span class="l">入境、領行李</span></div>
+      <div class="tlrow"><span class="t">13:10</span><span class="l">到機場 9 號門旁自助售票機購買機場巴士車票</span></div>
+      <div class="tlrow"><span class="t">13:30–15:00</span><span class="l">機場巴士 → 弘大（西橋洞）</span></div>
+    </div>
+    <div class="tip">機場巴士：仁川機場 T1 出境後到 <b>9號門</b> 旁自助售票機購票 → 搭往「弘大（西橋洞）」方向。</div>
+
+    <div class="card">
+      <p class="cn">Local Stitch Creator Town 西橋<span class="tag stay">住宿</span></p>
+      <div class="row"><span class="k">韓文名</span><span class="v kr">로컬스티치 크리에이터타운 서교</span></div>
+      <div class="row"><span class="k">地址</span><span class="v"><span class="addr">서울 마포구 월드컵북로5길 41</span></span></div>
+      <p class="desc">弘大入口站步行約10分。結合餐飲・選物・工作空間的共居設計旅店，Lotte 經營。</p>
+    </div>
+
+    <div class="card">
+      <p class="cn">Super 草莓牛奶<span class="tag">美食</span></p>
+      <div class="row"><span class="k">韓文名</span><span class="v kr">슈퍼커피 (Super Coffee)</span></div>
+      <div class="row"><span class="k">地址</span><span class="v"><span class="addr">서울 마포구 홍익로 10 푸르지오상가 101동 107호</span></span></div>
+      <p class="desc">弘大入口站附近，招牌草莓牛奶（딸기우유）超人氣，新鮮草莓滿杯。</p>
+      <p class="note">※ 你寫「Super Fruit」，弘大最有名的草莓牛奶店為「슈퍼커피 Super Coffee」，已先列此處；若另有指定店家可再告訴我。</p>
+    </div>
+
+    <div class="card">
+      <p class="cn">Bagel Land 弘大店<span class="tag">美食</span></p>
+      <div class="row"><span class="k">韓文名</span><span class="v kr">베이글랜드 홍대점</span></div>
+      <div class="row"><span class="k">地址</span><span class="v"><span class="addr">서울 마포구 와우산로29바길 19</span></span></div>
+      <p class="desc">弘大入口站8號出口步行約5分，08:30–22:30。人氣貝果店。</p>
+    </div>
+
+    <div class="card">
+      <p class="cn">Object 弘大本店<span class="tag spot">選物</span></p>
+      <div class="row"><span class="k">韓文名</span><span class="v kr">오브젝트 홍대본점</span></div>
+      <div class="row"><span class="k">地址</span><span class="v"><span class="addr">서울 마포구 와우산로35길 13</span></span></div>
+      <p class="desc">人氣文創設計選物店，文具、插畫雜貨、二手物，挖寶好去處。</p>
+    </div>
+  </section>
+
+  <!-- DAY2 -->
+  <section class="panel" id="d2">
+    <div class="dayhead">7/10（五）<b>麻浦</b>・望遠 → Touched 演唱會</div>
+    <div class="timeline">
+      <p class="th">⏱ 當日固定時間</p>
+      <div class="tlrow"><span class="t">日間</span><span class="l">望遠市場（微笑糖餅）</span></div>
+      <div class="tlrow fix"><span class="t">__:__</span><span class="l">Touched 演唱會・麻浦藝術中心<span class="lock">🎫</span> ＜開演時間請依票券填上＞</span></div>
+    </div>
+
+    <div class="card">
+      <p class="cn">望遠市場（微笑糖餅）<span class="tag">美食</span></p>
+      <div class="row"><span class="k">韓文名</span><span class="v kr">망원시장</span></div>
+      <div class="row"><span class="k">地址</span><span class="v"><span class="addr">서울 마포구 포은로8길 14</span></span></div>
+      <div class="row"><span class="k">糖餅攤</span><span class="v"><span class="kr">훈훈호떡</span>（씨앗호떡/인절미호떡）<br><span class="addr">서울 마포구 포은로6길 25 지하1층</span></span></div>
+      <p class="desc">望遠市場排隊人氣糖餅「훈훈호떡」，招牌씨앗호떡（堅果糖餅）。11:00–20:30，週一公休。</p>
+      <p class="note">※「微笑糖餅」未查到完全對應店名，已列市場最具代表的人氣호떡攤，現場也可直接 Naver 搜「망원시장 호떡」。</p>
+    </div>
+
+    <div class="card">
+      <p class="cn">Touched 演唱會・麻浦藝術中心<span class="timechip fix">🎫 依票券</span></p>
+      <div class="row"><span class="k">韓文名</span><span class="v kr">마포아트센터 (Mapo Art Center)</span></div>
+      <div class="row"><span class="k">地址</span><span class="v"><span class="addr">서울 마포구 대흥로20길 28</span></span></div>
+      <p class="desc">地鐵6號線大興站2號出口步行5分／2號線梨大站5號出口步行10分。開演時間以票券為準，建議提早入場。</p>
+    </div>
+  </section>
+
+  <!-- DAY3 -->
+  <section class="panel" id="d3">
+    <div class="dayhead">7/11（六）<b>北村・明洞</b>　景福宮→北村→益善洞→明洞</div>
+    <div class="timeline">
+      <p class="th">⏱ 當日固定時間</p>
+      <div class="tlrow"><span class="t">日間</span><span class="l">景福宮 → 北村韓屋 → 益善洞 → 明洞（含 MLB 北村店）</span></div>
+      <div class="tlrow fix"><span class="t">17:00</span><span class="l">亂打秀 NANTA（明洞）<span class="lock">🎫</span></span></div>
+      <div class="tlrow"><span class="t">晚上</span><span class="l">漢江泡麵・汝矣島漢江公園</span></div>
+    </div>
+
+    <div class="card">
+      <p class="cn">景福宮<span class="tag spot">景點</span></p>
+      <div class="row"><span class="k">韓文名</span><span class="v kr">경복궁</span></div>
+      <div class="row"><span class="k">地址</span><span class="v"><span class="addr">서울 종로구 사직로 161</span></span></div>
+      <p class="desc">朝鮮王朝正宮，穿韓服可免費入場。守門將換崗儀式約10:00、14:00。</p>
+    </div>
+
+    <div class="card">
+      <p class="cn">北村韓屋村<span class="tag spot">景點</span></p>
+      <div class="row"><span class="k">韓文名</span><span class="v kr">북촌한옥마을</span></div>
+      <div class="row"><span class="k">地址</span><span class="v"><span class="addr">서울 종로구 계동길 37</span></span></div>
+      <p class="desc">傳統韓屋聚落，北村八景拍照名所。住宅區請輕聲、勿擾住戶。</p>
+    </div>
+
+    <div class="card">
+      <p class="cn">益善洞韓屋街<span class="tag spot">景點</span></p>
+      <div class="row"><span class="k">韓文名</span><span class="v kr">익선동 한옥거리</span></div>
+      <div class="row"><span class="k">地址</span><span class="v"><span class="addr">서울 종로구 수표로28길 일대</span></span></div>
+      <p class="desc">韓屋改建的文青咖啡・餐廳巷弄，復古氛圍好拍。</p>
+    </div>
+
+    <div class="card">
+      <p class="cn">MLB 北村韓屋村店<span class="tag spot">購物</span></p>
+      <div class="row"><span class="k">韓文名</span><span class="v kr">MLB 북촌한옥마을점</span></div>
+      <div class="row"><span class="k">地址</span><span class="v"><span class="addr">서울 종로구 북촌한옥마을 일대</span></span></div>
+      <p class="desc">2026年3月開幕的韓屋造型旗艦店，傳統古材結合現代賣場。</p>
+      <p class="note">※ 詳細門牌未公開，現場請 Naver 搜「MLB 북촌한옥마을점」定位。</p>
+    </div>
+
+    <div class="card">
+      <p class="cn">亂打秀 NANTA（明洞）<span class="timechip fix">🎫 17:00</span></p>
+      <div class="row"><span class="k">韓文名</span><span class="v kr">명동난타극장</span></div>
+      <div class="row"><span class="k">地址</span><span class="v"><span class="addr">서울 중구 명동길 26 유네스코회관 3층</span></span></div>
+      <p class="desc">4號線明洞站6號出口步行約330m。無對白廚房打擊樂秀。<b>17:00 開演</b>，建議 16:30 前到場取票入座。</p>
+    </div>
+
+    <div class="card">
+      <p class="cn">漢江泡麵・汝矣島漢江公園<span class="tag">夜晚</span></p>
+      <div class="row"><span class="k">韓文名</span><span class="v kr">여의도한강공원</span></div>
+      <div class="row"><span class="k">地址</span><span class="v"><span class="addr">서울 영등포구 여의동로 330</span></span></div>
+      <p class="desc">公園內 CU/GS25 便利商店設煮麵機（라면 조리기），買泡麵自助現煮，漢江夜景必體驗。</p>
+    </div>
+  </section>
+
+  <!-- DAY4 -->
+  <section class="panel" id="d4">
+    <div class="dayhead">7/12（日）<b>聖水 + 夜景</b>　建大→聖水→龍馬山→盤浦</div>
+    <div class="timeline">
+      <p class="th">⏱ 當日固定時間</p>
+      <div class="tlrow"><span class="t">09:30</span><span class="l">建大入口站 6 號出口開始逛</span></div>
+      <div class="tlrow"><span class="t">日間</span><span class="l">EPT 聖水、LECT House（玩具總動員）、韓貞仙（麻糬）</span></div>
+      <div class="tlrow"><span class="t">15:00</span><span class="l">建大站搭 7 號線 → 龍馬山天空步道（夕陽＋夜景）</span></div>
+      <div class="tlrow"><span class="t">20:30</span><span class="l">盤浦大橋 月光彩虹噴泉</span></div>
+    </div>
+    <div class="tip">9:30 從 <b>建大入口站6號出口</b> 開始逛。</div>
+
+    <div class="card">
+      <p class="cn">建大入口站<span class="timechip">09:30 起</span></p>
+      <div class="row"><span class="k">韓文名</span><span class="v kr">건대입구역</span></div>
+      <div class="row"><span class="k">地址</span><span class="v"><span class="addr">서울 광진구 능동로 지하90</span></span></div>
+      <p class="desc">2號線・7號線轉乘站。6號出口為商圈起點。</p>
+    </div>
+
+    <div class="card">
+      <p class="cn">EPT 聖水<span class="tag spot">選物</span></p>
+      <div class="row"><span class="k">韓文名</span><span class="v kr">이피티 성수 (ept.)</span></div>
+      <div class="row"><span class="k">地址</span><span class="v"><span class="addr">서울 성동구 연무장17길 4-1, 1층</span></span></div>
+      <p class="desc">韓國設計帆布鞋品牌 East Pacific Trade 聖水門市。週一–三 11:00–20:00，週四–日至21:00。</p>
+    </div>
+
+    <div class="card">
+      <p class="cn">LECT House・玩具總動員<span class="tag pink">快閃</span></p>
+      <div class="row"><span class="k">韓文名</span><span class="v kr">렉트하우스 (House of Toy Story)</span></div>
+      <div class="row"><span class="k">地址</span><span class="v"><span class="addr">서울 성동구 연무장3길 8-9</span></span></div>
+      <p class="desc">玩具總動員主題快閃，重現安弟房間、伍迪氣球、夾娃娃機，12:00–21:00。</p>
+      <p class="note">※ 快閃檔期約至 7/12，正好是你造訪日，建議出發前再確認最後一天時間。</p>
+    </div>
+
+    <div class="card">
+      <p class="cn">韓貞仙（麻糬／糯米糕）<span class="tag">美食</span></p>
+      <div class="row"><span class="k">韓文名</span><span class="v kr">한정선</span></div>
+      <div class="row"><span class="k">地址</span><span class="v"><span class="addr">서울 성동구 성수동 성수역 4번 출구 인근 메인거리</span></span></div>
+      <p class="desc">人氣鮮果糯米糕（생과일 인절미떡），韓屋風格門面。聖水站4號出口出來主街上。</p>
+      <p class="note">※ 確切門牌變動較大，現場請 Naver 搜「한정선 성수」定位。</p>
+    </div>
+
+    <div class="card">
+      <p class="cn">龍馬山天空步道（夕陽・夜景）<span class="timechip">15:00 出發</span></p>
+      <div class="row"><span class="k">韓文名</span><span class="v kr">용마산 스카이워크</span></div>
+      <div class="row"><span class="k">地址</span><span class="v"><span class="addr">서울 중랑구 면목동 산 76-1</span></span></div>
+      <p class="desc">2025年底開通的木棧觀景步道，免費。7號線「사가정역」步行約2.4km上山。15:00 從建大搭7號線前往。</p>
+    </div>
+
+    <div class="card">
+      <p class="cn">盤浦大橋 月光彩虹噴泉<span class="timechip">20:30</span></p>
+      <div class="row"><span class="k">韓文名</span><span class="v kr">반포대교 달빛무지개분수</span></div>
+      <div class="row"><span class="k">地址</span><span class="v"><span class="addr">서울 서초구 신반포로11길 40</span></span></div>
+      <p class="desc">金氏紀錄最長橋樑噴泉。平日 20:00／20:30／21:00 各演出約15分。3·7·9號線高速巴士客運站8-1出口。<b>20:30 場次</b>正好。</p>
+    </div>
+  </section>
+
+  <!-- DAY5 / AIR -->
+  <section class="panel" id="d5">
+    <div class="dayhead">7/13（日）<b>返程・機票</b></div>
+    <div class="timeline">
+      <p class="th">⏱ 當日固定時間</p>
+      <div class="tlrow"><span class="t">06:30</span><span class="l">退房</span></div>
+      <div class="tlrow"><span class="t">07:00</span><span class="l">搭機場巴士前往仁川機場</span></div>
+      <div class="tlrow"><span class="t">09:00 前</span><span class="l">抵達仁川機場 T1</span></div>
+      <div class="tlrow fix"><span class="t">12:00</span><span class="l">班機返台（BR169）<span class="lock">🎫</span></span></div>
+    </div>
+
+    <div class="card">
+      <p class="cn">去程 <span class="pill">7/9（四）台北 → 首爾</span><span class="timechip fix">🎫</span></p>
+      <div class="flight">
+        <div class="seg"><div class="time">07:30</div><div class="code">TPE 桃園機場 T2</div></div>
+        <div class="arrow">→ 2h30m →</div>
+        <div class="seg" style="text-align:right;"><div class="time">11:00</div><div class="code">ICN 仁川機場 T1</div></div>
+      </div>
+      <div class="row"><span class="k">航班</span><span class="v">長榮航空 BR170 ｜ 經濟艙 ｜ 波音 787-10（大型）｜ 含餐</span></div>
+    </div>
+
+    <div class="card">
+      <p class="cn">回程 <span class="pill">7/13（一）首爾 → 台北</span><span class="timechip fix">🎫</span></p>
+      <div class="flight">
+        <div class="seg"><div class="time">12:00</div><div class="code">ICN 仁川機場 T1</div></div>
+        <div class="arrow">→ 2h35m →</div>
+        <div class="seg" style="text-align:right;"><div class="time">13:35</div><div class="code">TPE 桃園機場 T2</div></div>
+      </div>
+      <div class="row"><span class="k">航班</span><span class="v">長榮航空 BR169 ｜ 經濟艙 ｜ 空中巴士 A330-300（大型）｜ 含餐</span></div>
+    </div>
+
+    <div class="card">
+      <p class="cn">仁川國際機場 第1航廈<span class="tag spot">機場</span></p>
+      <div class="row"><span class="k">韓文名</span><span class="v kr">인천국제공항 제1여객터미널</span></div>
+      <div class="row"><span class="k">地址</span><span class="v"><span class="addr">인천 중구 공항로 272</span></span></div>
+      <p class="desc">7/13 退房 06:30 → 07:00 搭機場巴士 → 09:00 前抵達 T1。</p>
+    </div>
+    <div class="tip">※ 所有時間均為當地時間。出發前再次確認航廈與登機門。</div>
+  </section>
+</div>
+<footer>製作日期 2026/06/23 ｜ 地址以 Naver 地圖搜尋為準，部分快閃店請出發前確認檔期</footer>
+<script>
+  const tabs=document.querySelectorAll('.tab');
+  const panels=document.querySelectorAll('.panel');
+  tabs.forEach(t=>t.addEventListener('click',()=>{
+    tabs.forEach(x=>x.classList.remove('active'));
+    panels.forEach(p=>p.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.t).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }));
+</script>
+</body>
+</html>
